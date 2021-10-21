@@ -1,0 +1,108 @@
+version: "3.9"
+
+services:
+  mariadb:
+      build: ./requirements/mariadb
+      container_name: mariadb
+      env_file:
+        - .env
+      networks:
+        - inception
+      volumes:
+        - db:/var/lib/mysql
+      restart: always
+    
+  wordpress:
+      build: ./requirements/wordpress
+      container_name: wordpress
+      depends_on:
+        - mariadb
+      restart: always
+      env_file:
+        - .env
+      networks:
+        - inception
+      volumes:
+        - wp:/var/www/wordpress
+
+  nginx:
+      build: ./requirements/nginx
+      container_name: nginx
+      depends_on:
+        - wordpress
+      ports:
+        - "443:443"
+      restart: always
+      networks:
+        - inception
+      volumes:
+        - wp:/var/www/wordpress
+      env_file:
+        - .env
+  adminer:
+      build: ./requirements/adminer
+      container_name: adminer
+      depends_on: 
+        - mariadb
+      restart: always
+      env_file:
+        - .env
+      networks:
+        - inception
+      volumes:
+        - db:/var/lib/mysql
+      ports:
+        - 8080:8080
+    
+volumes:
+  db:
+      name: db
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: /home/fhyman/data/db
+  wp:
+      name: wp
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: /home/fhyman/data/wp
+
+networks:
+   inception:
+     driver: bridge
+
+
+# Драйвер по умолчанию зависит от того, как настроен Docker 
+# Engine, который вы используете, но в большинстве случаев он будет bridge на одном хосте
+
+
+# If you use the host network mode for a container, that container’s network
+# stack is not isolated from the Docker host (the container shares the host’s 
+# networking namespace), and the container does not get its own IP-address 
+# allocated. For instance, if you run a container which binds to port 80 
+# and you use host networking, the container’s application is available on
+# port 80 on the host’s IP address.
+
+# Таким образом, в основном --link создает набор переменных среды и добавляет
+# некоторые записи в файл /etc/hosts , чтобы облегчить связь. Но доступ к 
+# контейнерам по-прежнему осуществляется напрямую через IP.
+
+# Когда вы создаете контейнер с помощью параметра --link , Docker 
+# предоставляет связанный контейнер в новый двумя способами:
+
+# Он создает запись в /etc/hosts с IP связанного контейнера и 
+# псевдонимом, заданным при создании ссылки.
+# Он предоставляет некоторую информацию о связанном контейнере 
+# в виде переменных среды. Как показывает документация Docker:
+
+# Контейнеры в сети моста по умолчанию могут обращаться друг к 
+# другу только по IP-адресам, если вы не используете эту --linkопцию , 
+# которая считается устаревшей. В определяемой пользователем сети моста 
+# контейнеры могут разрешать друг друга по имени или псевдониму.
+
+# Every installation of the Docker Engine automatically 
+# includes three default networks. You can list them:
+# $ docker network ls
