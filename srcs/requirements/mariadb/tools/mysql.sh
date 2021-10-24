@@ -1,13 +1,10 @@
 #!/bin/bash
 sed -i -e 's/127.0.0.1/0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
 sed -i -e 's/#port/port /g' /etc/mysql/mariadb.conf.d/50-server.cnf
-echo "skip_skip_networking = false" >> /etc/mysql/mariadb.conf.d/50-server.cnf
-# echo "socket='/var/run/mysqld/mysqld.sock'" >> /etc/mysql/my.cnf
+echo "skip_networking = false" >> /etc/mysql/mariadb.conf.d/50-server.cnf
 
 if [ ! -d /var/lib/mysql/wordpress/ ]; then
 service mysql start
-
-mysqladmin --protocol=SOCKET --socket=/var/run/mysqld/mysqld.sock version
 
 echo "CREATE DATABASE IF NOT EXISTS $DB_NAME;"| mysql -u root
 echo "CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';"| mysql
