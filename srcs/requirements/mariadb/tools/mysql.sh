@@ -1,23 +1,96 @@
-# mysqladmin -u root password 'rootpass'
-# change the line with bind-address && 
-# if [!/var/lib/mysql/wordpress ] ; then
-if ["`mysql -u'$DB_USER' -p'$DB_PASSWORD' -e'USE $DB_NAME;' 2>&1`" == ""] ; then
-service mysql start
+#!/bin/bash
 sed -i -e 's/127.0.0.1/0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
 sed -i -e 's/#port/port /g' /etc/mysql/mariadb.conf.d/50-server.cnf
+echo "skip_skip_networking = false" >> /etc/mysql/mariadb.conf.d/50-server.cnf
+# echo "socket='/var/run/mysqld/mysqld.sock'" >> /etc/mysql/my.cnf
 
-echo "show databases like '$DB_NAME';" | mysql
-echo "CREATE DATABASE IF NOT EXISTS $DB_NAME;"| mysql
-echo "GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD' WITH GRANT OPTION;" | mysql
-echo "FLUSH PRIVILEGES;"| mysql
+if [ ! -d /var/lib/mysql/wordpress/ ]; then
+service mysql start
 
-# echo "DELETE FROM mysql.user WHERE Password='';"| mysql -u root --skip-password
-# echo "SET PASSWORD FOR root@'%'=PASSWORD('${MYSQL_ROOT_PASSWORD}');"| mysql -u root --skip-password
-# mysql -e "alter user 'root'@'localhost' identified by '${MYSQL_ROOT_PASSWORD}'";
+mysqladmin --protocol=SOCKET --socket=/var/run/mysqld/mysqld.sock version
 
+echo "CREATE DATABASE IF NOT EXISTS $DB_NAME;"| mysql -u root
+echo "CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';"| mysql
+echo "GRANT ALL PRIVILEGES ON wordpress.* TO '$DB_USER'@'%' WITH GRANT OPTION;"| mysql
+echo "FLUSH PRIVILEGES;"| mysql -u root
+# mysqladmin -u root password '$MYSQL_ROOT_PASSWORD'
 service mysql stop
 fi
+chown -R mysql:mysql /var/lib/mysql
+if [ ! -d /var/run/mysqld/ ]; then
+mkdir /var/run/mysqld
+mkfifo var/run/mysqld/mysqld.sock
+touch /var/run/mysqld/mysqld.pid
+chown -R mysql /var/run/mysqld
+fi
+
 mysqld
+
+
+
+
+
+
+
+
+
+
+
+
+
+# if [ ! -d /var/lib/mysql/wordpress/ ]; then
+# service mysql start
+# echo "CREATE DATABASE IF NOT EXISTS $DB_NAME;"| mysql
+# echo "CREATE USER IF NOT EXISTS $DB_USER@'%' IDENTIFIED BY '$DB_PASSWORD';"| mysql
+# echo "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%' WITH GRANT OPTION;"| mysql
+# echo "FLUSH PRIVILEGES;"| mysql 
+# mysqladmin -u root password $MYSQL_ROOT_PASSWORD
+# service mysql stop
+
+# echo "SET PASSWORD FOR 'root'@'localhost'=PASSWORD('${MYSQL_ROOT_PASSWORD}');"| mysql 
+# mysql -e "${MYSQL_ROOT_PASSWORD}";
+# echo "SET PASSWORD FOR 'root'@'localhost'=PASSWORD('${MYSQL_ROOT_PASSWORD}');"
+# echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';" | mysql
+# mysql -e "${MYSQL_ROOT_PASSWORD}";
+# echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
+# mysql -e "${MYSQL_ROOT_PASSWORD}";
+# echo "FLUSH PRIVILEGES;"| mysql -u root --skip-password
+
+# else
+# mkdir -p /var/run/mysqld
+# mkfifo /var/run/mysqld/mysqld.sock
+# touch /var/run/mysqld/mysqld.pid
+# chown -R mysql /var/run/mysqld
+# fi
+# chown -R mysql:mysql /var/lib/mysql
+
+# mysqld
+
+# # mysqladmin -u root password 'rootpass'
+# if [ ! -d /var/lib/mysql/wordpress ]; then
+# # if ["`mysql -u'$DB_USER' -p'$DB_PASSWORD' -e'USE $DB_NAME;' 2>&1`" == ""] ; then
+# service mysql start
+# sed -i -e 's/127.0.0.1/0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
+# sed -i -e 's/#port/port /g' /etc/mysql/mariadb.conf.d/50-server.cnf
+
+# echo "show databases like '$DB_NAME';" | mysql
+# echo "CREATE DATABASE IF NOT EXISTS $DB_NAME;"| mysql
+# echo "GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD' WITH GRANT OPTION;" | mysql
+# echo "UPDATE user set Password=PASSWORD('$MYSQL_ROOT_PASSWORD') WHERE user='root';" | mysql
+# echo "FLUSH PRIVILEGES;"| mysql
+
+# # echo "DELETE FROM mysql.user WHERE Password='';"| mysql -u root --skip-password
+# # echo "SET PASSWORD FOR root@'%'=PASSWORD('${MYSQL_ROOT_PASSWORD}');"| mysql -u root --skip-password
+# # mysql -e "alter user 'root'@'localhost' identified by '${MYSQL_ROOT_PASSWORD}'";
+
+# service mysql stop
+# # else
+# # mkdir /var/run/mysqld
+# # mkfifo var/run/mysqld/mysqld.sock
+# # touch /var/run/mysqld/mysqld.pid
+# # chown -R mysql /var/run/mysqld
+# fi
+# mysqld
 # mysqladmin -u root password '${MYSQL_ROOT_PASSWORD}';
 
 # echo "ALTER USER 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';" | mysql
