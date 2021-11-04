@@ -15,7 +15,8 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
     chmod +x wp-cli.phar && \
     mv wp-cli.phar /usr/local/bin/wp
 COPY ./tools ./
-# COPY /tools/fpm.conf /etc/php/7.3/fpm/pool.d/www.conf
+
+EXPOSE 9000
 
 # --nodaemonize
 # -F  Force to stay in foreground and ignore daemonize option from configuration file.

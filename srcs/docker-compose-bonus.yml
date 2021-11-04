@@ -39,21 +39,47 @@ services:
         - wp:/var/www/wordpress
       env_file:
         - .env
+
   adminer:
-      build: ./requirements/adminer
+      build: ./requirements/bonus/adminer
       container_name: adminer
-      depends_on: 
-        - mariadb
       restart: always
       env_file:
         - .env
+      depends_on:
+        - mariadb
       networks:
         - inception
       volumes:
-        - db:/var/lib/mysql
-      ports:
-        - 8080:8080
-    
+        - wp:/var/www/wordpress
+
+  redis:
+      build: ./requirements/bonus/redis
+      container_name: redis
+      restart: always
+      depends_on:
+        - wordpress
+      networks:
+        - inception
+      volumes:
+        - wp:/var/www/wordpress
+      env_file:
+        - .env
+
+  # website:
+  #     build: ./requirements/bonus/website
+  #     container_name: website
+  #     depends_on:
+  #       - nginx
+  #     restart: always
+  #     networks:
+  #       - inception
+  #     volumes:
+  #       - wp:/var/www/wordpress
+
+  # ftp:
+  
+
 volumes:
   db:
       name: db
@@ -69,6 +95,13 @@ volumes:
         type: none
         o: bind
         device: /home/fhyman/data/wp
+  adm:
+      name: adm
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: /home/fhyman/data/adminer
 
 networks:
    inception:
@@ -99,7 +132,7 @@ networks:
 # в виде переменных среды. Как показывает документация Docker:
 
 # Контейнеры в сети моста по умолчанию могут обращаться друг к 
-# другу только по IP-адресам, если вы не используете эту --linkопцию , 
+# другу только по IP-адресам, если вы не используете эту --link опцию , 
 # которая считается устаревшей. В определяемой пользователем сети моста 
 # контейнеры могут разрешать друг друга по имени или псевдониму.
 

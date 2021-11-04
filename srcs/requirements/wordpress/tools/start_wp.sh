@@ -14,5 +14,15 @@ wp core install --allow-root \
 				--admin_password=superpassword \
 				--admin_email=supervisor@esuper.com \
 				--path=/var/www/wordpress/
+#redis
+if [ ! -d /var/www/wordpress/wp-content/plugins/redis_cache/ ]; then
+	cd /var/www/wordpress/
+	wp plugin install redis-cache --activate --allow-root
+fi
+# wp plugin activate redis-cache
+# echo "define('WP_REDIS_SCHEME', 'unix');" >> /var/www/wordpress/wp-config.php
+# echo "define('WP_REDIS_PATH', '/home/example/.system/redis.sock');" >> /var/www/wordpress/wp-config.php
+# echo "define('WP_CACHE_KEY_SALT', 'example');" >> /var/www/wordpress/wp-config.php
+
 wp user create ${WP_NAME} askhab@mail.com --role=author --user_pass="${WP_PASSWORD}" --allow-root --path=/var/www/wordpress/
 /usr/sbin/php-fpm7.3 -F --nodaemonize

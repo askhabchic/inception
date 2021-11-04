@@ -4,6 +4,7 @@
     server_name fhyman.42.fr localhost www.localhost 127.0.0.1;
 
     ssl on;
+    ssl_protocols TLSv1.2; 
     ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
     ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
 
@@ -16,12 +17,28 @@
 		try_files $uri $uri/ =404; #проверить есть ли файл из запроса на диске, иначе - вернуть ошибку 404
 	}
 
+    #location @php {
+    #}
+    # adminer
+ #   location /adminer {
+ #       index adminer.php ;
+ #           location ~ \.php$ {
+ #           #include snippets/fastcgi-php.conf;
+ #           fastcgi_index adminer.php;
+ #           fastcgi_pass adminer:9000;
+ #           }
+ #   }
+    # wordpress
 	location ~ \.php$ {
-		include snippets/fastcgi-php.conf; #Настройки порта или сокета PHP-FPM производятся в файле "/etc/php5/fpm/pool.d/www.conf"
+		include snippets/fastcgi-php.conf;
+        #Настройки порта или сокета PHP-FPM производятся в файле "/etc/php5/fpm/pool.d/www.conf"
 		fastcgi_pass wordpress:9000;
-        # fastcgi_index index.php;
-        # fastcgi_pass unix:/run/php/php7.3-fpm.sock;
 	}
+    # website
+    location /web {
+        index index.html;
+        return 301 https://fhyman.42.fr/index.html;
+    }
  }
 
 # server Задаёт конфигурацию для виртуального сервера. Чёткого разделения виртуальных 

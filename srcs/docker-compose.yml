@@ -2,6 +2,7 @@ version: "3.9"
 
 services:
   mariadb:
+      image: mariadb:image
       build: ./requirements/mariadb
       container_name: mariadb
       env_file:
@@ -13,6 +14,7 @@ services:
       restart: always
     
   wordpress:
+      image: wordpress:image
       build: ./requirements/wordpress
       container_name: wordpress
       depends_on:
@@ -26,6 +28,7 @@ services:
         - wp:/var/www/wordpress
 
   nginx:
+      image: nginx:image
       build: ./requirements/nginx
       container_name: nginx
       depends_on:
@@ -39,7 +42,31 @@ services:
         - wp:/var/www/wordpress
       env_file:
         - .env
-    
+
+  redis:
+      image: redis:image
+      build: ./requirements/bonus/redis
+      container_name: redis
+      restart: always
+      depends_on:
+        - wordpress
+      networks:
+        - inception
+      volumes:
+        - wp:/var/www/wordpress
+      env_file:
+        - .env
+
+  web:
+      image: web:image
+      build: ./requirements/bonus/website
+      container_name: web
+      restart: always
+      networks:
+        - inception
+      volumes:
+        - wp:/var/www/wordpress/web
+
 volumes:
   db:
       name: db

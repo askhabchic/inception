@@ -1,8 +1,7 @@
 FROM debian:buster
 
 RUN apt-get update && \
-    # apt-get install -y default-mysql-server
-    apt-get -y install mariadb-client mariadb-server 
+    apt-get install -y default-mysql-server
 
 COPY ./tools/my.cnf /etc/
 RUN chown mysql:mysql /etc/my.cnf && \
@@ -13,5 +12,4 @@ RUN chmod +x mysql.sh
 
 EXPOSE 3306
 
-# CMD ["/mysql.sh", "mysqld"]
 CMD sh mysql.sh

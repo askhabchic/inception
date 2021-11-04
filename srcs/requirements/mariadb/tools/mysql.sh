@@ -1,31 +1,29 @@
 #!/bin/bash
 sed -i -e 's/127.0.0.1/0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
 sed -i -e 's/#port/port /g' /etc/mysql/mariadb.conf.d/50-server.cnf
-echo "skip_networking = false" >> /etc/mysql/mariadb.conf.d/50-server.cnf
-
-if [ ! -d /var/lib/mysql/wordpress/ ]; then
-service mysql start
-
-echo "CREATE DATABASE IF NOT EXISTS $DB_NAME;"| mysql -u root
-echo "CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';"| mysql
-echo "GRANT ALL PRIVILEGES ON wordpress.* TO '$DB_USER'@'%' WITH GRANT OPTION;"| mysql
-echo "FLUSH PRIVILEGES;"| mysql -u root
-# mysqladmin -u root password '$MYSQL_ROOT_PASSWORD'
-service mysql stop
-fi
 chown -R mysql:mysql /var/lib/mysql
-if [ ! -d /var/run/mysqld/ ]; then
-mkdir /var/run/mysqld
-mkfifo var/run/mysqld/mysqld.sock
-touch /var/run/mysqld/mysqld.pid
-chown -R mysql /var/run/mysqld
-fi
+if [ ! -d /var/lib/mysql/wordpress/ ]; then
+	mysql_install_db --user=mysql --ldata=/var/lib/mysql
+	service mysql start
+	echo "CREATE DATABASE IF NOT EXISTS $DB_NAME;" | mysql -u root
+	echo "CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';" | mysql
+	echo "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%' WITH GRANT OPTION;" | mysql
+	echo "FLUSH PRIVILEGES;"| mysql 
+	echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';" | mysql
+	service mysql stop
+else
+	if [ ! -d /var/run/mysqld/ ]; then
+		mkdir /var/run/mysqld
+		if [ ! -f /var/run/mysqld/mysqld.sock ]; then
+			mkfifo /var/run/mysqld/mysqld.sock
+		fi
+		touch /var/run/mysqld/mysqld.pid
+		fi
+		chmod 755 -R /var/run/mysqld/mysqld.sock
+	fi
+		chown -R mysql /var/run/mysqld
 
-mysqld
-
-
-
-
+mysqld_safe
 
 
 
