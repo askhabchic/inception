@@ -17,17 +17,6 @@
 		try_files $uri $uri/ =404; #проверить есть ли файл из запроса на диске, иначе - вернуть ошибку 404
 	}
 
-    #location @php {
-    #}
-    # adminer
- #   location /adminer {
- #       index adminer.php ;
- #           location ~ \.php$ {
- #           #include snippets/fastcgi-php.conf;
- #           fastcgi_index adminer.php;
- #           fastcgi_pass adminer:9000;
- #           }
- #   }
     # wordpress
 	location ~ \.php$ {
 		include snippets/fastcgi-php.conf;
@@ -36,8 +25,9 @@
 	}
     # website
     location /web {
+        root /var/www/wordpress/web;
         index index.html;
-        return 301 https://fhyman.42.fr/index.html;
+        # return 301 https://fhyman.42.fr/index.html;
     }
  }
 
