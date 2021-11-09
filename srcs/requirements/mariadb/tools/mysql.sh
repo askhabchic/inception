@@ -1,94 +1,32 @@
 #!/bin/bash
 sed -i -e 's/127.0.0.1/0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
 sed -i -e 's/#port/port /g' /etc/mysql/mariadb.conf.d/50-server.cnf
-# echo s/password=/password=$MYSQL_ROOT_PASSWORD/g | sed /etc/my.cnf
-# echo "password=$MYSQL_ROOT_PASSWORD" >> /etc/mysql/my.cnf 
-echo "s/password=MYSQL_ROOT_PASSWORD/password="$MYSQL_ROOT_PASSWORD"/g" >> namefile
-sed -f namefile /etc/mysql/my.cnf
 
-# chown -R mysql:mysql /var/lib/mysql
-# if [ ! -d /var/lib/mysql/wordpress/ ]; then
+chown -R mysql:mysql /var/lib/mysql
+if [ ! -d /var/lib/mysql/wordpress/ ]; then
+	# echo "s/password=MYSQL_ROOT_PASSWORD/password="$MYSQL_ROOT_PASSWORD"/g" >> file
+	# sed -f file /etc/mysql/my.cnf
 	mysql_install_db --user=mysql --ldata=/var/lib/mysql
 	service mysql start
 	echo "CREATE DATABASE IF NOT EXISTS $DB_NAME;" | mysql -u root --skip-password
 	echo "CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';" | mysql -u root --skip-password
 	echo "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%' WITH GRANT OPTION;" | mysql -u root --skip-password
 	echo "FLUSH PRIVILEGES;"| mysql -u root --skip-password
-	# echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';" | mysql -u root --skip-password
-	# mysqladmin -u root password '$MYSQL_ROOT_PASSWORD'
+	echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';" | mysql -u root --skip-password
+	echo "FLUSH PRIVILEGES;"| mysql -u root --skip-password
 	service mysql stop
-# else
-# 	if [ ! -d /var/run/mysqld/ ]; then
-# 		mkdir /var/run/mysqld
-# 		if [ ! -f /var/run/mysqld/mysqld.sock ]; then
-# 			mkfifo /var/run/mysqld/mysqld.sock
-# 		fi
-# 		touch /var/run/mysqld/mysqld.pid
-# 		fi
-# 		chmod 755 -R /var/run/mysqld/mysqld.sock
-# 	fi
-# 		chown -R mysql /var/run/mysqld
+else
+	if [ ! -d /var/run/mysqld/ ]; then
+		mkdir /var/run/mysqld
+		if [ ! -f /var/run/mysqld/mysqld.sock ]; then
+			mkfifo /var/run/mysqld/mysqld.sock
+		fi
+		touch /var/run/mysqld/mysqld.pid
+		fi
+		chmod 755 -R /var/run/mysqld/mysqld.sock
+	fi
+		chown -R mysql /var/run/mysqld
 mysqld_safe
-
-
-# if [ ! -d /var/lib/mysql/wordpress/ ]; then
-# service mysql start
-# echo "CREATE DATABASE IF NOT EXISTS $DB_NAME;"| mysql
-# echo "CREATE USER IF NOT EXISTS $DB_USER@'%' IDENTIFIED BY '$DB_PASSWORD';"| mysql
-# echo "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%' WITH GRANT OPTION;"| mysql
-# echo "FLUSH PRIVILEGES;"| mysql 
-# mysqladmin -u root password $MYSQL_ROOT_PASSWORD
-# service mysql stop
-
-# echo "SET PASSWORD FOR 'root'@'localhost'=PASSWORD('${MYSQL_ROOT_PASSWORD}');"| mysql 
-# mysql -e "${MYSQL_ROOT_PASSWORD}";
-# echo "SET PASSWORD FOR 'root'@'localhost'=PASSWORD('${MYSQL_ROOT_PASSWORD}');"
-# echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';" | mysql
-# mysql -e "${MYSQL_ROOT_PASSWORD}";
-# echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
-# mysql -e "${MYSQL_ROOT_PASSWORD}";
-# echo "FLUSH PRIVILEGES;"| mysql -u root --skip-password
-
-# else
-# mkdir -p /var/run/mysqld
-# mkfifo /var/run/mysqld/mysqld.sock
-# touch /var/run/mysqld/mysqld.pid
-# chown -R mysql /var/run/mysqld
-# fi
-# chown -R mysql:mysql /var/lib/mysql
-
-# mysqld
-
-# # mysqladmin -u root password 'rootpass'
-# if [ ! -d /var/lib/mysql/wordpress ]; then
-# # if ["`mysql -u'$DB_USER' -p'$DB_PASSWORD' -e'USE $DB_NAME;' 2>&1`" == ""] ; then
-# service mysql start
-# sed -i -e 's/127.0.0.1/0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
-# sed -i -e 's/#port/port /g' /etc/mysql/mariadb.conf.d/50-server.cnf
-
-# echo "show databases like '$DB_NAME';" | mysql
-# echo "CREATE DATABASE IF NOT EXISTS $DB_NAME;"| mysql
-# echo "GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD' WITH GRANT OPTION;" | mysql
-# echo "UPDATE user set Password=PASSWORD('$MYSQL_ROOT_PASSWORD') WHERE user='root';" | mysql
-# echo "FLUSH PRIVILEGES;"| mysql
-
-# # echo "DELETE FROM mysql.user WHERE Password='';"| mysql -u root --skip-password
-# # echo "SET PASSWORD FOR root@'%'=PASSWORD('${MYSQL_ROOT_PASSWORD}');"| mysql -u root --skip-password
-# # mysql -e "alter user 'root'@'localhost' identified by '${MYSQL_ROOT_PASSWORD}'";
-
-# service mysql stop
-# # else
-# # mkdir /var/run/mysqld
-# # mkfifo var/run/mysqld/mysqld.sock
-# # touch /var/run/mysqld/mysqld.pid
-# # chown -R mysql /var/run/mysqld
-# fi
-# mysqld
-# mysqladmin -u root password '${MYSQL_ROOT_PASSWORD}';
-
-# echo "ALTER USER 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';" | mysql
-# echo "mysqladmin -u root password 'rootpass';" | mysql
-# echo "FLUSH PRIVILEGES;"| mysql
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Если вы изменяете таблицы грантов напрямую, используя такие выражения, как INSERT,      #
