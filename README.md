@@ -1,6 +1,5 @@
 # inception
-This project aims to broaden knowledge of system administration by using Docker.
-Here we're virtualize several Docker images, creating them in new personal virtual machine.
+Virtualize several Docker images, creating them in new personal virtual machine.
 
 We have to set up:
 
